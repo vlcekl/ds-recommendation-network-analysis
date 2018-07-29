@@ -1,4 +1,4 @@
-# Recommendation system based on publication citation ranking
+# Recommendation system based on publication citations
 
 ## The problem
 Search for relevant literature is often a tedious procedure, that requires following a large number of links and, if performed by a human,
