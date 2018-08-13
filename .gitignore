@@ -1,0 +1,16 @@
+# exclude data from source control by default
+/data/raw/
+/data/processed/
+
+# IPython NB Checkpoints
+.ipynb_checkpoints/
+/report/.ipynb_checkpoints/
+/notebooks/.ipynb_checkpoints/
+
+/report/.DS_store
+/notebooks/.DS_store
+
+# Environment
+.env
+.DS_Store
+
