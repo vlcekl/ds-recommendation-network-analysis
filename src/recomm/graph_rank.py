@@ -1,6 +1,7 @@
 import networkx as nx
-from collections import Counter
+from collections import Counter, defaultdict
 from .read_wiki import get_cats, pub_info, get_cat_children
+
 
 class GraphRank:
     """
@@ -93,7 +94,6 @@ class GraphRank:
  
                     # create a new node tuple
                     new_node = (title, {'address':cat_ref, 'ptype':'category'})
-                    #print(new_node)
  
                     # create a new node
                     self.SG.add_node(title, address=cat_ref, ptype='category')
@@ -193,12 +193,12 @@ class GraphRank:
         most_cited = pub_counts.most_common(n_highest_pubs)
 
         # Print information about highly cited publications
-        for i, pub in enumerate(most_cited, 1):
-            info = pub_info(pub[0])
-            print('Rank:', i, '\nCitations:', pub[1])
-            print('ID:', pub[0])
-            print('Source:', info[0])
-            print('Title:', info[1],'\n')
+#        for i, pub in enumerate(most_cited, 1):
+#            info = pub_info(pub[0])
+#            print('Rank:', i, '\nCitations:', pub[1])
+#            print('ID:', pub[0])
+#            print('Source:', info[0])
+#            print('Title:', info[1],'\n')
 
         # Level 2 - Categories from citing topic pages
         # Find pages linked to the topic pages through common category
@@ -215,7 +215,7 @@ class GraphRank:
 
         # Go through category nodes and get their publication children
         cat_nodes = [(node, data) for node, data in self.SG.nodes(data=True) if data['ptype']=='category']
-        print('Number of categories:', len(cat_nodes))
+        print('Number of categories for level 2 publications:', len(cat_nodes))
 
         level2_pubs = []
         for cat in cat_nodes:
@@ -224,21 +224,63 @@ class GraphRank:
             # Add topic nodes and edges to the subgraph
             self.add_pages(cat, wpage_tags)
 
-        wpage_nodes = [(node, data) for node, data in self.SG.nodes(data=True) if data['bipartite']=='web_page']
+        wpage_nodes = [(node, data) for node, data in self.SG.nodes(data=True) if data['ptype']=='topic']
 
         level2_pubs = []
         for page in wpage_nodes:
-            level2_pubs.extend([pub for pub in self.SG.successors(page)])
-        
-        pub_counts2 = Counter(level2_pubs)
-        del pub_counts2[publication]
-        most_cited2 = pub_counts2.most_common(n_highest_pubs)
+            level2_pubs.extend([pub for pub in self.G.successors(page[0])])
 
-        # Print information about highly cited publications
+        pub_counts2 = Counter(level2_pubs)
+
+        # Find and merge duplicates
+        num_pub = n_highest_pubs*3 if n_highest_pubs*3 < len(pub_counts2) else len(pub_counts2)
+        most_cited2 = pub_counts2.most_common(num_pub)
+        select_pubs = defaultdict(dict)
+        pub_titles = defaultdict(int)
         for i, pub in enumerate(most_cited2, 1):
             info = pub_info(pub[0])
-            print('Rank:', i, '\nCitations:', pub[1])
-            print('ID:', pub[0])
-            print('Source:', info[0])
-            print('Title:', info[1],'\n')
+            title = info[1]
+            cites = pub[1]
+            source = info[0]
+            pubid = pub[0]
+            select_pubs[title[:10]] = [title, cites, source, pubid]
+            pub_titles[title[:10]] += cites
+            if pub[0] == publication:
+                title_orig = title[:10]
+
+
+        # delete title references to the original publication
+        del pub_titles[title_orig]
+
+        pub_ranks = dict(sorted(pub_titles.items(), key=lambda x: x[1], reverse=True))
+
+        for i, key in enumerate(pub_ranks, 1):
+            cites = pub_ranks[key]
+            pubid = select_pubs[key][3]
+            link = select_pubs[key][2]
+            title = select_pubs[key][0]
+
+            print('Rank:', i, '\nCitations:', cites)
+            print('ID:', pubid)
+            print('Source:', link)
+            print('Title:', title,'\n')
+            if i == 13:
+                break
+            #print('Rank:', i, '\nCitations:', pub[1])
+            #print('ID:', pub[0])
+            #print('Source:', info[0])
+            #print('Title:', info[1],'\n')
+
+#        del pub_counts2[publication]
+#        print('Total number of level 2 publications:', len(pub_counts2))
+#        most_cited2 = pub_counts2.most_common(n_highest_pubs)
+#
+#        # Print information about highly cited publications
+#        #for i, pub in enumerate(most_cited2, 1):
+#        for i, pub in enumerate(selected, 1):
+#            info = pub_info(pub[0])
+#            print('Rank:', i, '\nCitations:', pub[1])
+#            print('ID:', pub[0])
+#            print('Source:', info[0])
+#            print('Title:', info[1],'\n')
 
