@@ -192,7 +192,7 @@ class GraphRank:
         del pub_counts[publication]
         most_cited = pub_counts.most_common(n_highest_pubs)
 
-        # Print information about highly cited publications
+        # Print information about highly cited publications in Level 1
 #        for i, pub in enumerate(most_cited, 1):
 #            info = pub_info(pub[0])
 #            print('Rank:', i, '\nCitations:', pub[1])
@@ -233,26 +233,36 @@ class GraphRank:
         pub_counts2 = Counter(level2_pubs)
 
         # Find and merge duplicates
-        num_pub = n_highest_pubs*3 if n_highest_pubs*3 < len(pub_counts2) else len(pub_counts2)
+        num_pub = n_highest_pubs*6 if n_highest_pubs*6 < len(pub_counts2) else len(pub_counts2)
         most_cited2 = pub_counts2.most_common(num_pub)
         select_pubs = defaultdict(dict)
         pub_titles = defaultdict(int)
+        title_orig = ''
         for i, pub in enumerate(most_cited2, 1):
+            if pub[0][0] == 'pmc':
+                continue
             info = pub_info(pub[0])
             title = info[1]
+            if title == 'N/A' or title == '' or ('sorry' in title):
+                continue
+            title = title.replace('Title:', '').lstrip()
             cites = pub[1]
             source = info[0]
             pubid = pub[0]
-            select_pubs[title[:10]] = [title, cites, source, pubid]
-            pub_titles[title[:10]] += cites
+            select_pubs[title[:10].lower()] = [title, cites, source, pubid]
+            pub_titles[title[:10].lower()] += cites
+            #print("PUBS", pub[0], publication, cites)
             if pub[0] == publication:
-                title_orig = title[:10]
+                title_orig = title[:10].lower()
 
 
+        #print('lenght 1:', len(most_cited), len(pub_titles))
         # delete title references to the original publication
-        del pub_titles[title_orig]
+        if title_orig in pub_titles:
+            del pub_titles[title_orig]
 
         pub_ranks = dict(sorted(pub_titles.items(), key=lambda x: x[1], reverse=True))
+        #print('lenght 2:', len(pub_ranks), )
 
         for i, key in enumerate(pub_ranks, 1):
             cites = pub_ranks[key]
@@ -264,23 +274,6 @@ class GraphRank:
             print('ID:', pubid)
             print('Source:', link)
             print('Title:', title,'\n')
-            if i == 13:
+            if i == n_highest_pubs:
                 break
-            #print('Rank:', i, '\nCitations:', pub[1])
-            #print('ID:', pub[0])
-            #print('Source:', info[0])
-            #print('Title:', info[1],'\n')
-
-#        del pub_counts2[publication]
-#        print('Total number of level 2 publications:', len(pub_counts2))
-#        most_cited2 = pub_counts2.most_common(n_highest_pubs)
-#
-#        # Print information about highly cited publications
-#        #for i, pub in enumerate(most_cited2, 1):
-#        for i, pub in enumerate(selected, 1):
-#            info = pub_info(pub[0])
-#            print('Rank:', i, '\nCitations:', pub[1])
-#            print('ID:', pub[0])
-#            print('Source:', info[0])
-#            print('Title:', info[1],'\n')
 

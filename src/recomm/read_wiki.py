@@ -1,3 +1,8 @@
+"""
+Webs scraping functions used to gather information about publications, web
+pages and categories from Wikipedia.
+"""
+
 import requests
 import bs4
 from collections import deque
@@ -21,6 +26,7 @@ def pub_info(pub_id):
 
     # urls for publications with different types of ids
     urls = {'doi':'https://doi.org/',
+            'doi2':'https://doi.org/',
             'arxiv':'https://arxiv.org/abs/',
             #'isbn':'https://isbnsearch.org/isbn/',
             'isbn2':'https://www.google.com/search?tbm=bks&q=isbn+',
@@ -31,23 +37,30 @@ def pub_info(pub_id):
     
     link = urls[pub_id[0]] + pub_id[1]
 
-    selector = {'doi':'h1',
+    selector = {'doi':'header h1',#[itemprop="name headline"]',
+                'doi2':'header h1',
                 'arxiv':'h1', 
                 #'isbn':'#search > .g > .rc > h3',
-                'isbn':'h3',
+                'isbn':'h1',
                 'isbn2':'h3 > a[href=]',
-                'pmid':'h1',
+                'pmid':'.rprt_all h1',
                 'pmc':'h1'
                }
 
     # try to find the title of a publication; if not successful, return N/A.
+    title = ''
     try:
-        r = requests.get(link)
+        #print('link', link)
+        r = requests.get(link, allow_redirects=True)
         try:
             soup = bs4.BeautifulSoup(r.text, 'html.parser')
             if pub_id[0] == 'arxiv':
                 title = soup.select(selector[pub_id[0]])[-1].get_text()
             elif pub_id[0] == 'isbn':
+                title = soup.select(selector[pub_id[0]])[0].get_text()
+            elif pub_id[0] == 'doi':
+                title = soup.select(selector[pub_id[0]])[0].get_text()
+            elif pub_id[0] == 'pmid':
                 title = soup.select(selector[pub_id[0]])[0].get_text()
             else:
                 title = soup.select(selector[pub_id[0]])[0].get_text()
@@ -56,23 +69,35 @@ def pub_info(pub_id):
                 # another try for ISBN directly search google
                 link = urls[pub_id[0]+'2'] + pub_id[1]
                 try:
-                    r = requests.get(link)
+                    r = requests.get(link, allow_redirects=True)
                     soup = bs4.BeautifulSoup(r.text, 'html.parser')
-                    #tag = soup.find_all('a', {'href':re.compile('.*books.google.com.*')})[0]
-                    #tag = soup.find_all('h3.r'), {'href':re.compile('.*books.google.com.*')})[0]
-                    #tags = soup.find_all(href=re.compile(r'.*books.google.com.*'))
-                    #tags = soup.find_all(href=re.compile(r'.*books.google.com.*'))
-                    #tags = soup.select('h3.r > a')
                     tags = soup.select('h3.r > a[href*="books.google.com"]')
                     title = tags[0].get_text()
-                    link = tags[0].get('href')
+                    links_new = tags[0].get('href')
+                    if len(lings_new) > 0:
+                        link = lins_new[0]
                 except:
-                    title = 'Really could not find title'
+                    title = 'N/A'
+            elif pub_id[0] == 'doi':
+                # another try for DOI
+                link = urls[pub_id[0]+'2'] + pub_id[1]
+                try:
+                    r = requests.get(link, allow_redirects=True)
+                    soup = bs4.BeautifulSoup(r.text, 'html.parser')
+                    tags = soup.select('h1')
+                    #print('h1 tags num (doi)', len(tags))
+                    #print("LINK TAGS", link, tags)
+                    title = tags[0].get_text()
+                    #link = tags[0].get('href')
+                except:
+                    title = 'N/A'
             else:
-                    title = 'Could not find title'
+                    title = 'N/A'
 
     except requests.exceptions.RequestException:
-        title = 'N/A - RequestException'
+        title = 'N/A'
+
+    title = title.replace('Title:', '').lstrip()
     
     return link, title
 
