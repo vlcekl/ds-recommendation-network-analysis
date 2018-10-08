@@ -59,25 +59,42 @@ Both nodes with the highest level of centrality represent encyclopedic/aggregati
 
 The graph was saved in the JSON format for later use.
 
-## 5. Model - recommendation system
+## 5. Recommendation system model - functioality, structure, and implementation
 
-To find the best recommendation based on a given publication, the system will
-find related publications by searching other publications referenced on the same
+To find the best recommendation based on a given publication, the system 
+identifies related publications by searching other publications referenced on the same
 pages as the original publications (Level 1), and also among publications referenced
-witin the same category (Level 2). Those with the highest degree of centrality within Level1 and Level2 will be recommended with the highest rankings.
-The actual weights of the Level1 and Level2 publications will be tuned.
+witin the same category (Level 2). Those with the highest degree of centrality within Level1 and Level2 are recommended with the highest rankings.
+The actual weights of the Level1 and Level2 publications are tunable parameters.
 
-The model will be evaluated by using the Discounted Cummulative Gain with the reference rankings provided by humans (me).
-
-At present the model provides recommendations in the form of links to relevant publications based on Level 1 references. 
-Additional work is needed to incorporate Level 2 information and improve web
-scraping basic information about the recommended publications, such as title
-and authors. THis part is callenging because the publications are generally
-found at different pages with different HTML structure, which complicates
-identification of the desired properties.
+The model code is composed of two main subsystems implemented as recomm python module in src directory.
+The core of the system is the GraphRank class that creates and querries a graph of relations between publications, topic web pages, and categories.
+This network created using the networkx library functionality can be considered a tripartite directed graph connecting the three
+types of network nodes. The second part of the system is a set of helper
+functions that take care of acquiring additional data about the categories and publication details from the Internet using web scraping techniques.
+These functions use the functionality of requests and BeautifulSoup python libraries.
 
 ## 6. Model testing and evaluation
 
+The model was tested and evaluated on the examples of recommendations based on
+two publications: (i) "Designing Great Beers: The Ultimate Guite to Brewing
+Classic Beer Styles" by Ray Daniels, and (ii) an scientific paper  "Learning
+the parts of objects by non-negative matrix factorization" by Lee and Seung,
+published in Nature (1999).
+
+The relevance of recommendations was evaluated by 2 people. In a production
+system this group, as well as the number of publications would be larger.
+
+In the case of the first publication ('Designing Great Beers), the system has
+identified publications highly relevant to the topic. The highest ranking
+publications can be considered reference sources, while the lower ranking
+publications are generally more specific, but still interesting suggestions.
+   
+In the case of the scientific paper on non-negative matrix factorization (NMF) the search
+resulted in identification of relevant publications. They were a mix of general
+review-type articles, technical papers describing new algorithms, as well as
+field-specific research papers. As a whole they provide useful suggestions for
+further reading, which I have followed.
 
 ## 7. Conculsions and general comments
 
