@@ -3,6 +3,8 @@
 /data/processed/
 /dump/
 
+__pycache__/
+
 # IPython NB Checkpoints
 .ipynb_checkpoints/
 /report/.ipynb_checkpoints/
