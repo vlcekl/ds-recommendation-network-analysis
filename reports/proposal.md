@@ -2,24 +2,24 @@
 
 ## The problem
 Search for relevant literature is often a tedious procedure, that requires following a large number of links and, if performed by a human,
-is prone to missing imporant sources. The goal of this project is to use public resources, such as Wikipedia, to develop a system that would automatically search large numbers of links
+is prone to missing important sources. The goal of this project is to use public resources, such as Wikipedia, to develop a system that would automatically search large numbers of links
 and recommend a publication to a customer either for purchase or as suggested reading. The value of such a system would follow from its higher speed and thoroughness compared
 to manual search.
 
 ## Clients
 1. A book selling company that is building a recommendation system based on user browsing data.
    Based on the suggestions of the proposed system, the seller will be able to place tailored advertising or other suggestions for the customer,
-   and increase thus chances of succesful sale.
+   and increase thus chances of successful sale.
 2. Independent researchers or institutions seeking to speedup and automate relevant literature search and meta-analysis studies of published research.
    Given the explosion of scientific and other publications, relevant research is .
    The recommendation system could possibly be extended to work with other online resources and gradually built up
    to create a map of research areas or, in general, knowledge for further machine learning-powered science.
 
 ## Datasets
-The main source of data will be the open wkimedia dataset on citations 
+The main source of data will be the open Wikimedia dataset on citations 
 1. Wikimedia open data set available for download: https://analytics.wikimedia.org/datasets/archive/public-datasets/all/mwrefs/
 2. Wikipedia traffic trends available for download: http://dumps.wikimedia.org/other/pagecounts-raw/
-3. Webscraping wikipedia through its API and the corresponding python library
+3. Web scraping wikipedia through its API and the corresponding python library
    for specific information about the pages.
 
 ## Approach

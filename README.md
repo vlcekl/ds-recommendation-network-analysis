@@ -20,4 +20,4 @@ included in the src/recomm directory, an example and testing of the system is
 presented in a Jupyter notebook, and additional documentation is in the
 reports directory.
 
-[Slide deck](./reports/recommendation_system_slide_deck.pdf) 
+[Presentation slide deck](./reports/recommendation_system_slide_deck.pdf) 
